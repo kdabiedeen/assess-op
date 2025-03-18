@@ -8,6 +8,8 @@ import ScheduledActions from "@/components/ScheduledActions";
 import RulesList from "@/components/RulesList";
 import LogsList from "@/components/LogsList";
 import { useScheduleStore } from "@/store/scheduleStore";
+import SettingsPage from "@/settings";
+import Link from "next/link";
 
 export default function ScheduleActionPage() {
   // Destructure state, setters, and fetching functions from Zustand store
@@ -120,6 +122,14 @@ export default function ScheduleActionPage() {
 
   return (
     <div className="max-w-7xl mx-auto p-6 bg-blue-50">
+
+      {/* Navigation Link to Settings Page */}
+      <div className="text-center mb-6">
+        <a href="/settings">
+          <p className="text-blue-700 underline">Go to Settings</p>
+        </a>
+      </div>
+
       <h1 className="text-4xl font-bold mb-6 text-blue-700 text-center">
         Automated Rule Engine
       </h1>

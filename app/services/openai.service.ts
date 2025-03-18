@@ -1,5 +1,5 @@
 import { automationRulePromptBuilder } from "@/utils/automationRulePromptBuilder.utils";
-import { openAiClient, } from "@/clients/openai.client";
+import { getOpenAiClient } from "@/clients/openai.client";
 import { GPT_MODEL, SYSTEM_ROLE } from "@/constants/openai.constants";
 
 export interface GPTResult {
@@ -12,9 +12,10 @@ export interface GPTResult {
 
 export async function extractAutomationRuleDataFromUserInput(sentence: string): Promise<GPTResult> {
   const prompt = automationRulePromptBuilder(sentence);
+  const client = getOpenAiClient();
 
   try {
-    const response = await openAiClient.chat.completions.create({
+    const response = await client.chat.completions.create({
       model: GPT_MODEL,
       messages: [
         { role: "system", content: SYSTEM_ROLE },
