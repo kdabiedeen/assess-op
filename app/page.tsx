@@ -1,103 +1,136 @@
-import Image from "next/image";
+// app/page.tsx
+"use client";
+import { useEffect, FormEvent } from "react";
+import NlpProcessor from "@/components/NlpProcessor";
+import RuleForm from "@/components/RuleForm";
+import ManualTrigger from "@/components/ManualTrigger";
+import ScheduledActions from "@/components/ScheduledActions";
+import RulesList from "@/components/RulesList";
+import LogsList from "@/components/LogsList";
+import { useScheduleStore } from "@/store/scheduleStore";
 
-export default function Home() {
+export default function ScheduleActionPage() {
+  // Destructure state, setters, and fetching functions from Zustand store
+  const {
+    events,
+    actions,
+    rules,
+    scheduledActions,
+    logs,
+    selectedEvent,
+    selectedAction,
+    delaySeconds,
+    triggerEvent,
+    setNlpInput,
+    fetchEvents,
+    fetchActions,
+    fetchRules,
+    fetchScheduledActions,
+    fetchLogs,
+  } = useScheduleStore();
+
+  // Initial data fetch
+  useEffect(() => {
+    fetchEvents();
+    fetchActions();
+    fetchRules();
+    fetchLogs();
+  }, [fetchEvents, fetchActions, fetchRules, fetchLogs]);
+
+  // Periodically update scheduled actions, rules, and logs
+  useEffect(() => {
+    fetchScheduledActions();
+    const interval = setInterval(() => {
+      fetchScheduledActions();
+      fetchRules();
+      fetchLogs();
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [fetchScheduledActions, fetchRules, fetchLogs]);
+
+  // Handle rule creation (scheduling an action)
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!selectedEvent || !selectedAction || delaySeconds < 0) {
+      alert("Please select an event, an action, and a valid delay.");
+      return;
+    }
+    try {
+      const response = await fetch("/api/rules", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          event: selectedEvent,
+          action: selectedAction,
+          delay: delaySeconds,
+        }),
+      });
+      if (response.ok) {
+        alert("Rule created successfully!");
+        fetchRules();
+      } else {
+        alert("Failed to create rule.");
+      }
+    } catch (error) {
+      console.error("❌ Error creating rule:", error);
+      alert("Error creating rule.");
+    }
+  };
+
+  // Handle rule deletion
+  const handleDeleteRule = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this rule?")) return;
+    try {
+      const response = await fetch(`/api/rules?id=${id}`, { method: "DELETE" });
+      if (response.ok) {
+        alert("Rule deleted successfully!");
+        fetchRules();
+      } else {
+        alert("Failed to delete rule.");
+      }
+    } catch (error) {
+      console.error("❌ Error deleting rule:", error);
+      alert("Error deleting rule.");
+    }
+  };
+
+  // Handle manual event trigger
+  const handleTriggerEvent = async () => {
+    if (!triggerEvent) {
+      alert("Please select an event to trigger!");
+      return;
+    }
+    try {
+      const response = await fetch("/api/scheduled-actions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ event: triggerEvent }),
+      });
+      if (response.ok) {
+        alert("Event triggered successfully!");
+        fetchScheduledActions();
+      } else {
+        alert("Failed to trigger event.");
+      }
+    } catch (error) {
+      console.error("❌ Error triggering event:", error);
+      alert("Error triggering event.");
+    }
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="max-w-7xl mx-auto p-6">
+      <NlpProcessor />
+      <h2 className="text-2xl font-bold mb-6 text-gray-900">Schedule an Action</h2>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="space-y-6">
+          <RuleForm handleSubmit={handleSubmit} />
+          <ManualTrigger handleTriggerEvent={handleTriggerEvent} />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        <ScheduledActions />
+        <RulesList handleDeleteRule={handleDeleteRule} />
+        <LogsList />
+      </div>
     </div>
   );
 }

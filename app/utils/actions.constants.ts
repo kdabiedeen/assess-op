@@ -1,0 +1,18 @@
+export const actions: Record<string, string> = {
+    send_email: "Send Email",
+    send_slack_notification: "Send Slack Notification",
+    send_native_notification: "Send Native Notification",
+    create_task: "Create Task",
+    turn_on_device: "Turn On Device",
+    turn_off_device: "Turn Off Device",
+    send_sms: "Send SMS",
+    send_whatsapp_message: "Send WhatsApp Message",
+    update_calendar_event: "Update Calendar Event",
+    assign_cleaner: "Assign Cleaner",
+    escalate_issue: "Escalate Issue",
+    generate_report: "Generate Report",
+    log_event: "Log Event",
+    send_invoice: "Send Invoice",
+    reschedule_cleaning: "Reschedule Cleaning",
+    reminder_notification: "Reminder Notification",
+  };
