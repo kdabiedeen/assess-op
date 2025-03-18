@@ -1,6 +1,8 @@
 import { automationRulePromptBuilder } from "@/utils/automationRulePromptBuilder.utils";
 import { getOpenAiClient } from "@/clients/openai.client";
 import { GPT_MODEL, SYSTEM_ROLE } from "@/constants/openai.constants";
+import { EVENTS } from "@/constants/events.constants";
+import { ACTIONS } from "@/constants/actions.constants";
 
 export interface GPTResult {
   event?: string;
@@ -33,9 +35,20 @@ export async function extractAutomationRuleDataFromUserInput(sentence: string): 
       const parsed = JSON.parse(output);
 
       // If the result is an array, take only the first mapping.
-      let mapping: GPTResult;
-      mapping = Array.isArray(parsed) ? parsed[0] : parsed;
-      return mapping;
+      let result: GPTResult;
+      result = Array.isArray(parsed) ? parsed[0] : parsed;
+
+      // Validate action key; mark as "N/A" if it's undefined or not in ACTIONS.
+      if (!result.action || !ACTIONS[result.action]) {
+        result.action = "N/A";
+      }
+
+      // Validate event key; mark as "N/A" if it's undefined or not in EVENTS.
+      if (!result.event || !EVENTS[result.event]) {
+        result.event = "N/A";
+      }
+
+      return result;
     } catch (jsonError) {
       return { error: "Failed to parse JSON output", output };
     }
