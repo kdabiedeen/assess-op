@@ -12,7 +12,7 @@ export interface GPTResult {
 
 export async function extractAutomationRuleDataFromUserInput(sentence: string): Promise<GPTResult> {
   const prompt = automationRulePromptBuilder(sentence);
-  const client = getOpenAiClient();
+  const client = await getOpenAiClient();
 
   try {
     const response = await client.chat.completions.create({
