@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Optionally update the environment variable if needed.
-        process.env.GPT_KEY = key;
+        process.env.OPENAI_API_KEY = key;
 
         // Reinitialize your OpenAI client with the new key.
         updateOpenAiClient(key);
