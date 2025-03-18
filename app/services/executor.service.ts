@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { logMessage } from "./logging.service";
-import { actions } from "@/utils/actions.constants";
+import { ACTIONS } from "@/constants/actions.constants";
 
 const prisma = new PrismaClient();
 
@@ -16,8 +16,8 @@ export const executeScheduledAction = async (actionId: number) => {
       return;
     }
 
-    const executionTime = new Date().toISOString();
-    const friendlyActionName = actions[action.action] || action.action;
+    const executionTime = new Date().toLocaleString();
+    const friendlyActionName = ACTIONS[action.action] || action.action;
     const execMsg = `⏱️ [Scheduled] Executing Action: **${friendlyActionName}** | Time: ${executionTime}`;
     console.log(execMsg);
 
@@ -27,7 +27,7 @@ export const executeScheduledAction = async (actionId: number) => {
       data: { executed: true },
     });
 
-    const markMsg = `✅ [Scheduled] Action ${action.action} marked as executed.`;
+    const markMsg = `✅ [Scheduled] Action **${friendlyActionName}** Executed!.`;
     console.log(markMsg);
     await logMessage(markMsg);
   } catch (error) {
@@ -42,10 +42,9 @@ export const executeScheduledAction = async (actionId: number) => {
  */
 export const executeImmediateAction = async (action: string) => {
   try {
-    const executionTime = new Date().toISOString();
-    const friendlyActionName = actions[action] || action
-    const msg = `⚡ [Immediate] Executing Action: ${action} | Time: ${executionTime}`;
-    console.log(msg);
+    const executionTime = new Date().toLocaleString();
+    const friendlyActionName = ACTIONS[action] || action
+    const msg = `⚡ [Immediate] Executing Action: ${friendlyActionName} | Time: ${executionTime}`;
     await logMessage(msg);
     // No database changes are made for immediate actions.
   } catch (error) {

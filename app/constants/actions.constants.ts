@@ -1,4 +1,4 @@
-export const actions: Record<string, string> = {
+export const ACTIONS: Record<string, string> = {
     send_email: "Send Email",
     send_slack_notification: "Send Slack Notification",
     send_native_notification: "Send Native Notification",

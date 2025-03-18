@@ -1,7 +1,5 @@
-// app/api/nlp/process/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
-import { mapSentenceToKeys } from '@/services/openai.service'; // Adjust the path as needed
+import { extractAutomationRuleDataFromUserInput } from '@/services/openai.service'; // Adjust the path as needed
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,11 +13,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Process the sentence using the mapping service.
-    // TODO: Questionable Naming 
-    const mapping = await mapSentenceToKeys(sentence);
+    const automationRuleData = await extractAutomationRuleDataFromUserInput(sentence);
 
-    return NextResponse.json(mapping, { status: 200 });
+    return NextResponse.json(automationRuleData, { status: 200 });
   } catch (error) {
     console.error("❌ Error processing sentence:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

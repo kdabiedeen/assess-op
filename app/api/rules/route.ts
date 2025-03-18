@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-// 📌 **POST /api/rules** → Create a new rule
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -12,11 +12,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    if (typeof delay !== "number" || delay < 0) {
-      return NextResponse.json({ error: "Invalid delay (must be a non-negative number)" }, { status: 400 });
-    }
-
-    const newRule = await prisma.rule.upsert({
+    const newOrUpdatedRule = await prisma.rule.upsert({
         where: {
           event_action: { event, action },
         },
@@ -26,7 +22,7 @@ export async function POST(req: NextRequest) {
 
     console.log(`✅ Rule Created: ${event} -> ${action} with delay ${delay} sec`);
 
-    return NextResponse.json(newRule, { status: 201 });
+    return NextResponse.json(newOrUpdatedRule, { status: 201 });
   } catch (error) {
     console.error("❌ Error creating rule:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
@@ -43,25 +39,27 @@ export async function GET() {
   }
 }
 
+function validateId(idParam: string | null): number | null {
+  if (!idParam) return null;
+  const id = parseInt(idParam, 10);
+  return isNaN(id) ? null : id;
+}
+
 export async function DELETE(req: NextRequest) {
     try {
-      // Extract the rule ID from query parameters
       const { searchParams } = new URL(req.url);
       const idParam = searchParams.get("id");
-      if (!idParam) {
-        return NextResponse.json({ error: "Missing rule id" }, { status: 400 });
+      const id = validateId(idParam);
+
+      if (id === null) {
+        return NextResponse.json({ error: "Invalid or missing rule id" }, { status: 400 });
       }
 
-      const id = parseInt(idParam, 10);
-      if (isNaN(id)) {
-        return NextResponse.json({ error: "Invalid rule id" }, { status: 400 });
-      }
-  
       // Delete the rule
       const deletedRule = await prisma.rule.delete({
         where: { id },
       });
-  
+
       return NextResponse.json(deletedRule, { status: 200 });
     } catch (error) {
       console.error("❌ Error deleting rule:", error);

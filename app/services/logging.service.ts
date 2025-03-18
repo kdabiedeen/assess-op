@@ -11,3 +11,4 @@ export const logMessage = async (message: string) => {
     console.error("❌ Error creating log entry:", error);
   }
 };
+

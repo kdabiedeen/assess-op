@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { actions } from '@/utils/actions.constants';
+import { ACTIONS } from '@/constants/actions.constants';
 
 export async function GET(req: NextRequest) {
-  return NextResponse.json(actions, { status: 200 });
+  return NextResponse.json(ACTIONS, { status: 200 });
 }

@@ -2,7 +2,21 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import {  scheduleAction, triggerImmediateAction } from "@/services/scheduler.service";
 
-// 📌 **POST /api/scheduled-actions** → Schedule actions when an event occurs
+async function processRules(event: string, rules: Array<{ action: string; delay: number }>) {
+  const results = [];
+
+  for (const rule of rules) {
+    if (rule.delay === 0) {
+      await triggerImmediateAction(event, rule.action);
+      results.push({ event, action: rule.action, executed: true });
+    } else {
+      await scheduleAction(event, rule.action);
+      results.push({ event, action: rule.action, scheduled: true });
+    }
+  }
+  return results;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -23,21 +37,7 @@ export async function POST(req: NextRequest) {
     }
     console.log('Found rules ', rules);
 
-    // Array to collect the results for each rule execution
-    const results = [];
-
-    // Loop over each rule and schedule or trigger immediately based on delay
-    for (const rule of rules) {
-      if (rule.delay === 0) {
-        // Immediate execution
-        await triggerImmediateAction(event, rule.action);
-        results.push({ event, action: rule.action, executed: true });
-      } else {
-        // Schedule the action to be executed later
-        await scheduleAction(event, rule.action);
-        results.push({ event, action: rule.action, scheduled: true });
-      }
-    }
+    const results = await processRules(event, rules);
 
     return NextResponse.json({ scheduledActions: results }, { status: 201 });
   } catch (error) {
