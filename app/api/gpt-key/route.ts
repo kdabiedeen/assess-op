@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { updateOpenAiClient } from '@/clients/openai.client';
+import { PrismaClient } from '@prisma/client';
+import {updateOpenAiClient} from "@/clients/openai.client";
+
+const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest) {
     try {
@@ -13,14 +16,10 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Optionally update the environment variable if needed.
-        process.env.OPENAI_API_KEY = key;
-
-        // Reinitialize your OpenAI client with the new key.
-        updateOpenAiClient(key);
+        await updateOpenAiClient(key);
 
         return NextResponse.json(
-            { message: 'GPT key saved and client updated successfully.' },
+            { message: 'GPT key saved successfully.' },
             { status: 200 }
         );
     } catch (error) {
