@@ -2,7 +2,7 @@ import { automationRulePromptBuilder } from "@/utils/automationRulePromptBuilder
 import { openAiClient, } from "@/clients/openai.client";
 import { GPT_MODEL, SYSTEM_ROLE } from "@/constants/openai.constants";
 
-export interface MappingResult {
+export interface GPTResult {
   event?: string;
   action?: string;
   delay?: number;
@@ -10,7 +10,7 @@ export interface MappingResult {
   output?: string;
 }
 
-export async function extractAutomationRuleDataFromUserInput(sentence: string): Promise<MappingResult> {
+export async function extractAutomationRuleDataFromUserInput(sentence: string): Promise<GPTResult> {
   const prompt = automationRulePromptBuilder(sentence);
 
   try {
@@ -30,8 +30,10 @@ export async function extractAutomationRuleDataFromUserInput(sentence: string): 
 
     try {
       const parsed = JSON.parse(output);
+
       // If the result is an array, take only the first mapping.
-      const mapping: MappingResult = Array.isArray(parsed) ? parsed[0] : parsed;
+      let mapping: GPTResult;
+      mapping = Array.isArray(parsed) ? parsed[0] : parsed;
       return mapping;
     } catch (jsonError) {
       return { error: "Failed to parse JSON output", output };
