@@ -21,5 +21,8 @@ Mapping: {"event": "guest_checkin", "action": "send_email", "delay": 300}
 
 export const AUTOMATION_RULE_GPT_PROMPT_INSTRUCTIONS = `
 You are given a natural language sentence from the hospitality domain.
-Extract the event, action keys, and a delay in seconds from the sentence based on the following mappings.
+Extract the mapping with the keys "event", "action", and "delay" in seconds.
+IMPORTANT:
+- Only use the event and action keys provided in the lists below.
+- Do NOT invent or modify keys. If the sentence does not match any of the provided keys exactly, return a valid JSON with empty strings for "event" and "action", and 0 for "delay".
 `;
