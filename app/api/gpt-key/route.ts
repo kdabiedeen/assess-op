@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import {updateOpenAiClient} from "@/clients/openai.client";
-
-const prisma = new PrismaClient();
+import { updateOpenAiClient } from "@/clients/openai.client";
 
 export async function POST(req: NextRequest) {
     try {

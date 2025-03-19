@@ -15,7 +15,7 @@ export const ACTIONS: Record<string, string> = {
     send_invoice: "Send Invoice",
     reschedule_cleaning: "Reschedule Cleaning",
     reminder_notification: "Reminder Notification",
-  };
+};
 
 export const ACTION_SYNONYMS: Record<string, string[]> = {
     send_email: [

@@ -35,7 +35,7 @@ export const EVENTS: Record<string, string> = {
     sound_system_turned_off: "Sound System Turned Off",
     lights_turned_on: "Lights Turned On",
     lights_turned_off: "Lights Turned Off",
-  };
+};
 
 export const EVENT_SYNONYMS: Record<string, string[]> = {
     // Guest-related events
