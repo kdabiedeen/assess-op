@@ -105,4 +105,17 @@ export const useScheduleStore = create<ScheduleState>((set, get) => ({
             set({ logs: [] });
         }
     },
+    deleteAllLogs: async (): Promise<void> => {
+        try {
+            const res = await fetch("/api/logs", { method: "DELETE" });
+            if (res.ok) {
+                // Clear the logs from state after successful deletion
+                set({ logs: [] });
+            } else {
+                console.error("❌ Error deleting logs: ", res.statusText);
+            }
+        } catch (err) {
+            console.error("❌ Error deleting logs:", err);
+        }
+    },
 }));

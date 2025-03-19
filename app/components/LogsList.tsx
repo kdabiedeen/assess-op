@@ -4,11 +4,25 @@ import { useScheduleStore } from "@/store/scheduleStore";
 import { Log } from "@/types/schedule.types";
 
 export default function LogsList() {
-    const { logs } = useScheduleStore();
+    const { logs, deleteAllLogs } = useScheduleStore();
+
+    const handleDelete = async (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+        e.preventDefault();
+        await deleteAllLogs();
+    };
 
     return (
         <div className="p-4 bg-white shadow rounded">
-            <h3 className="text-lg font-semibold mb-4 text-gray-900">Execution Logs</h3>
+            <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Execution Logs</h3>
+                <a
+                    href="#"
+                    onClick={handleDelete}
+                    className="text-sm text-red-600 hover:underline"
+                >
+                    Delete All Logs
+                </a>
+            </div>
             <ul className="bg-gray-100 p-4 rounded">
                 {logs.length ? (
                     logs.map((log: Log) => (
